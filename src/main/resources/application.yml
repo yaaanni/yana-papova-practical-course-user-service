@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: docker
+
+  liquibase:
+    change-log: classpath:db/master.yml
