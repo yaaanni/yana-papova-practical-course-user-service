@@ -4,3 +4,6 @@ spring:
 
   liquibase:
     change-log: classpath:db/master.yml
+
+  jpa:
+    show-sql: true
