@@ -26,7 +26,7 @@ public class Card {
     @Column(name = "expiration_date", nullable = false)
     private LocalDate expirationDate;
     @Column(nullable = false)
-    private Boolean active;
+    private Boolean active = true;
     @CreationTimestamp
     @Column(name = "created_at")
     private LocalDateTime createdAt;
