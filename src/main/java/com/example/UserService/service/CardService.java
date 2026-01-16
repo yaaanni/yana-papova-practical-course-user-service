@@ -16,9 +16,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 @AllArgsConstructor
 public class CardService {
     private final CardMapper cardMapper;
@@ -67,17 +69,19 @@ public class CardService {
         return cardMapper.toResponse(card);
     }
 
-    public CardResponse active(Long id) {
+    public CardResponse activate(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
-        cardRepository.activate(id);
+        card.setActive(true);
+        cardRepository.save(card);
         return cardMapper.toResponse(card);
     }
 
-    public CardResponse deactive(Long id) {
+    public CardResponse deactivate(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
-        cardRepository.deactivate(id);
+        card.setActive(false);
+        cardRepository.save(card);
         return cardMapper.toResponse(card);
     }
 

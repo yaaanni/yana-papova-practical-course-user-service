@@ -4,7 +4,6 @@ import com.example.UserService.dto.user.UserByIdResponse;
 import com.example.UserService.dto.user.UserRequest;
 import com.example.UserService.dto.user.UserResponse;
 import com.example.UserService.entities.User;
-import com.example.UserService.exception.MoreThanFiveCadsException;
 import com.example.UserService.exception.UserNotFoundException;
 import com.example.UserService.mapper.UserMapper;
 import com.example.UserService.repository.UserRepository;
@@ -55,14 +54,16 @@ public class UserService {
     public UserResponse activate(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
-        userRepository.activate(id);
+        user.setActive(true);
+        userRepository.save(user);
         return userMapper.toResponse(user);
     }
 
     public UserResponse deactivate(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
-        userRepository.deactivate(id);
+        user.setActive(false);
+        userRepository.save(user);
         return userMapper.toResponse(user);
     }
 
