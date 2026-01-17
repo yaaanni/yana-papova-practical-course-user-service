@@ -8,13 +8,15 @@ import com.example.UserService.exception.UserNotFoundException;
 import com.example.UserService.mapper.UserMapper;
 import com.example.UserService.repository.UserRepository;
 import com.example.UserService.specification.UserSpecifications;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +30,7 @@ public class UserService {
         return userMapper.toResponse(savedUser);
     }
 
+    @Cacheable(value = "users", key = "#id")
     public UserByIdResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -43,6 +46,8 @@ public class UserService {
                 .map(u -> userMapper.toResponse(u));
     }
 
+    @CacheEvict(value = "users", key = "#id")
+    @Transactional
     public UserResponse update(UserRequest request, Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -51,6 +56,8 @@ public class UserService {
         return userMapper.toResponse(user);
     }
 
+    @CacheEvict(value = "users", key = "#id")
+    @Transactional
     public UserResponse activate(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -59,6 +66,8 @@ public class UserService {
         return userMapper.toResponse(user);
     }
 
+    @CacheEvict(value = "users", key = "#id")
+    @Transactional
     public UserResponse deactivate(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
@@ -67,9 +76,12 @@ public class UserService {
         return userMapper.toResponse(user);
     }
 
+    @CacheEvict(value = "users", key = "#id")
+    @Transactional
     public void delete(Long id) {
         userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
         userRepository.deleteById(id);
     }
+
 }

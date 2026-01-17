@@ -12,7 +12,10 @@ import com.example.UserService.mapper.CardMapper;
 import com.example.UserService.repository.CardRepository;
 import com.example.UserService.repository.UserRepository;
 import com.example.UserService.specification.CardSpecifications;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,7 +29,9 @@ public class CardService {
     private final CardMapper cardMapper;
     private final CardRepository cardRepository;
     private final UserRepository userRepository;
+    private final CacheManager cacheManager;
 
+    @CacheEvict(value = "users", key = "#request.userId")
     public CardResponse create(CardRequest request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
@@ -61,6 +66,8 @@ public class CardService {
                 .toList();
     }
 
+    @CacheEvict(value = "users", key = "#cardRequest.userId")
+    @Transactional
     public CardResponse update(CardUpdateRequest cardRequest, Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
@@ -69,25 +76,31 @@ public class CardService {
         return cardMapper.toResponse(card);
     }
 
+    @Transactional
     public CardResponse activate(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
         card.setActive(true);
         cardRepository.save(card);
+        cacheManager.getCache("users").evict(card.getUser().getId());
         return cardMapper.toResponse(card);
     }
 
+    @Transactional
     public CardResponse deactivate(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
         card.setActive(false);
         cardRepository.save(card);
+        cacheManager.getCache("users").evict(card.getUser().getId());
         return cardMapper.toResponse(card);
     }
 
+    @Transactional
     public void delete(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
+        cacheManager.getCache("users").evict(card.getUser().getId());
         cardRepository.deleteById(id);
     }
 }
