@@ -12,6 +12,7 @@ import com.example.UserService.mapper.CardMapper;
 import com.example.UserService.repository.CardRepository;
 import com.example.UserService.repository.UserRepository;
 import com.example.UserService.specification.CardSpecifications;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,6 +60,7 @@ public class CardService {
                 .toList();
     }
 
+    @Transactional
     public CardResponse update(CardUpdateRequest cardRequest, Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
@@ -67,6 +69,7 @@ public class CardService {
         return cardMapper.toResponse(card);
     }
 
+    @Transactional
     public CardResponse active(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
@@ -74,6 +77,7 @@ public class CardService {
         return cardMapper.toResponse(card);
     }
 
+    @Transactional
     public CardResponse deactive(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
@@ -81,6 +85,7 @@ public class CardService {
         return cardMapper.toResponse(card);
     }
 
+    @Transactional
     public void delete(Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
