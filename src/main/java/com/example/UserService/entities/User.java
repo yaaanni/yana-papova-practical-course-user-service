@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -38,5 +39,5 @@ public class User {
     private LocalDateTime updatedAt;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<Card> cards;
+    private List<Card> cards = new ArrayList<>();;
 }

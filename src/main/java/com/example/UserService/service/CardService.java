@@ -40,6 +40,7 @@ public class CardService {
         }
         Card card = cardMapper.toEntity(request);
         card.setUser(user);
+        user.getCards().add(card);
         Card savedCard = cardRepository.save(card);
         return cardMapper.toResponse(savedCard);
     }

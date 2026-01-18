@@ -1,5 +1,6 @@
 package com.example.UserService.exception;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -34,4 +35,12 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("; "));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage);
     }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleIntegrityErrors(DataIntegrityViolationException ex) {
+        return ResponseEntity
+                .badRequest()
+                .body("Data integrity violation");
+    }
+
 }
