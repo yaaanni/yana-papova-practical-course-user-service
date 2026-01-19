@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew test
 
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v1
+        uses: sonarsource/sonarqube-scan-action@v6
         with:
           projectBaseDir: .
           args: >
