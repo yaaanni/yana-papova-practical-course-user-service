@@ -38,6 +38,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.awaitility.Awaitility.await;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Testcontainers
 @Transactional
@@ -96,7 +98,7 @@ public class CardServiceIntegrationTest {
                         "surname": "Person",
                         "birthDay": "2006-03-04",
                         "email": "new@example.com"
-                    }        
+                    }
                 """;
 
         MvcResult resultUser = mockMvc.perform(
@@ -116,18 +118,12 @@ public class CardServiceIntegrationTest {
         Cache cache = cacheManager.getCache("users");
         assertNotNull(cache);
 
-        Object cachedValue = cache.get(id);
-        assertNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(
-                        get("/users/" + id))
+        mockMvc.perform(get("/users/" + id))
                 .andExpect(status().isOk());
 
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
-
-        cachedValue = cache.get(id);
-        assertNotNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         UserByIdResponse cached = cache.get(id, UserByIdResponse.class);
         assertNotNull(cached);
@@ -156,16 +152,11 @@ public class CardServiceIntegrationTest {
         );
 
         assertNotNull(cardResponse.getId());
+        assertTrue(cardRepository.findById(cardResponse.getId()).isPresent());
 
-        Optional<Card> fromDb = cardRepository.findById(cardResponse.getId());
-        assertTrue(fromDb.isPresent());
-
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
-
-        cachedValue = cache.get(id);
-        assertNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
     }
+
 
     @Test
     void create_shouldThrowUserNotFound_whenUserDoesNotExist() throws Exception {
@@ -615,18 +606,12 @@ public class CardServiceIntegrationTest {
         Cache cache = cacheManager.getCache("users");
         assertNotNull(cache);
 
-        Object cachedValue = cache.get(id);
-        assertNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(
-                        get("/users/" + id))
+        mockMvc.perform(get("/users/" + id))
                 .andExpect(status().isOk());
 
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
-
-        cachedValue = cache.get(id);
-        assertNotNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         UserByIdResponse cached = cache.get(id, UserByIdResponse.class);
         assertNotNull(cached);
@@ -657,27 +642,17 @@ public class CardServiceIntegrationTest {
         assertTrue(cardResponse.getActive());
 
         Long cardId = cardResponse.getId();
+        assertNotNull(cardId);
 
-        assertNotNull(cardResponse.getId());
-
-        Optional<Card> fromDb = cardRepository.findById(cardResponse.getId());
+        Optional<Card> fromDb = cardRepository.findById(cardId);
         assertTrue(fromDb.isPresent());
 
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        cachedValue = cache.get(id);
-        assertNull(cachedValue);
-
-        mockMvc.perform(
-                        get("/users/" + id))
+        mockMvc.perform(get("/users/" + id))
                 .andExpect(status().isOk());
 
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
-
-        cachedValue = cache.get(id);
-        assertNotNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         cached = cache.get(id, UserByIdResponse.class);
         assertNotNull(cached);
@@ -705,11 +680,7 @@ public class CardServiceIntegrationTest {
 
         assertTrue(updatedCard.getActive());
 
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
-
-        cachedValue = cache.get(id);
-        assertNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
     }
 
     @Test
@@ -749,18 +720,12 @@ public class CardServiceIntegrationTest {
         Cache cache = cacheManager.getCache("users");
         assertNotNull(cache);
 
-        Object cachedValue = cache.get(id);
-        assertNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(
-                        get("/users/" + id))
+        mockMvc.perform(get("/users/" + id))
                 .andExpect(status().isOk());
 
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
-
-        cachedValue = cache.get(id);
-        assertNotNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         UserByIdResponse cached = cache.get(id, UserByIdResponse.class);
         assertNotNull(cached);
@@ -791,27 +756,17 @@ public class CardServiceIntegrationTest {
         assertTrue(cardResponse.getActive());
 
         Long cardId = cardResponse.getId();
+        assertNotNull(cardId);
 
-        assertNotNull(cardResponse.getId());
-
-        Optional<Card> fromDb = cardRepository.findById(cardResponse.getId());
+        Optional<Card> fromDb = cardRepository.findById(cardId);
         assertTrue(fromDb.isPresent());
 
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        cachedValue = cache.get(id);
-        assertNull(cachedValue);
-
-        mockMvc.perform(
-                        get("/users/" + id))
+        mockMvc.perform(get("/users/" + id))
                 .andExpect(status().isOk());
 
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
-
-        cachedValue = cache.get(id);
-        assertNotNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         cached = cache.get(id, UserByIdResponse.class);
         assertNotNull(cached);
@@ -834,11 +789,7 @@ public class CardServiceIntegrationTest {
 
         assertFalse(updatedCard.getActive());
 
-        cache = cacheManager.getCache("users");
-        assertNotNull(cache);
-
-        cachedValue = cache.get(id);
-        assertNull(cachedValue);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
     }
 
     @Test
@@ -910,7 +861,8 @@ public class CardServiceIntegrationTest {
 
         Cache cache = cacheManager.getCache("users");
         assertNotNull(cache);
-        assertNull(cache.get(userId));
+
+        await().atMost(1, SECONDS).until(() -> cache.get(userId) == null);
     }
 
     @Test

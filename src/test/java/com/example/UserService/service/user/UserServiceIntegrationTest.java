@@ -28,6 +28,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.awaitility.Awaitility.await;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import tools.jackson.databind.JsonNode;
@@ -151,8 +153,8 @@ class UserServiceIntegrationTest {
                         post("/users")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
-                .andExpect(status().isCreated()
-                ).andReturn();
+                .andExpect(status().isCreated())
+                .andReturn();
 
         UserResponse response = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
@@ -174,25 +176,30 @@ class UserServiceIntegrationTest {
                         post("/cards")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
-                .andExpect(status().isCreated()
-                );
+                .andExpect(status().isCreated());
+
         MvcResult resultWithCard = mockMvc.perform(
-                get("/users/" + id)
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk()
-        ).andReturn();
+                        get("/users/" + id)
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
         String jsonResponse = resultWithCard.getResponse().getContentAsString();
         JsonNode root = objectMapper.readTree(jsonResponse);
+
         assertEquals(id, root.get("id").asLong());
+
         JsonNode cards = root.get("cards");
         assertNotNull(cards);
         assertEquals(1, cards.size());
+
         mockMvc.perform(get("/users/" + id))
                 .andExpect(status().isOk());
+
         Cache cache = cacheManager.getCache("users");
         assertNotNull(cache);
-        Object cachedValue = cache.get(id, Object.class);
-        assertNotNull(cachedValue);
+
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
     }
 
     @Test
@@ -216,6 +223,7 @@ class UserServiceIntegrationTest {
         UserResponse created = objectMapper.readValue(
                 createResult.getResponse().getContentAsString(),
                 UserResponse.class);
+
         Long id = created.getId();
 
         mockMvc.perform(get("/users/" + id))
@@ -224,8 +232,7 @@ class UserServiceIntegrationTest {
         Cache cache = cacheManager.getCache("users");
         assertNotNull(cache);
 
-        Object cachedBeforeUpdate = cache.get(id, Object.class);
-        assertNotNull(cachedBeforeUpdate);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         String updateJson = """
                 {
@@ -241,14 +248,12 @@ class UserServiceIntegrationTest {
                         .content(updateJson))
                 .andExpect(status().isOk());
 
-        Object cachedAfterUpdate = cache.get(id, Object.class);
-        assertNull(cachedAfterUpdate);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
         mockMvc.perform(get("/users/" + id))
                 .andExpect(status().isOk());
 
-        Object cachedAgain = cache.get(id, Object.class);
-        assertNotNull(cachedAgain);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         Optional<User> fromDb = userRepository.findById(id);
         assertTrue(fromDb.isPresent());
@@ -395,22 +400,19 @@ class UserServiceIntegrationTest {
         Cache cache = cacheManager.getCache("users");
         assertNotNull(cache);
 
-        Object cachedBefore = cache.get(id, Object.class);
-        assertNotNull(cachedBefore);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         mockMvc.perform(
                 patch("/users/" + id + "/activate")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isOk());
 
-        Object cachedAfter = cache.get(id, Object.class);
-        assertNull(cachedAfter);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
         mockMvc.perform(get("/users/" + id))
                 .andExpect(status().isOk());
 
-        Object cachedAgain = cache.get(id, Object.class);
-        assertNotNull(cachedAgain);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         Optional<User> fromDb = userRepository.findById(id);
         assertTrue(fromDb.isPresent());
@@ -447,22 +449,19 @@ class UserServiceIntegrationTest {
         Cache cache = cacheManager.getCache("users");
         assertNotNull(cache);
 
-        Object cachedBefore = cache.get(id, Object.class);
-        assertNotNull(cachedBefore);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         mockMvc.perform(
                 patch("/users/" + id + "/deactivate")
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isOk());
 
-        Object cachedAfter = cache.get(id, Object.class);
-        assertNull(cachedAfter);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
         mockMvc.perform(get("/users/" + id))
                 .andExpect(status().isOk());
 
-        Object cachedAgain = cache.get(id, Object.class);
-        assertNotNull(cachedAgain);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         Optional<User> fromDb = userRepository.findById(id);
         assertTrue(fromDb.isPresent());
@@ -499,16 +498,14 @@ class UserServiceIntegrationTest {
         Cache cache = cacheManager.getCache("users");
         assertNotNull(cache);
 
-        Object cachedBefore = cache.get(id, Object.class);
-        assertNotNull(cachedBefore);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
 
         mockMvc.perform(
                 delete("/users/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isNoContent());
 
-        Object cachedAfter = cache.get(id, Object.class);
-        assertNull(cachedAfter);
+        await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
         Optional<User> fromDb = userRepository.findById(id);
         assertTrue(fromDb.isEmpty());
