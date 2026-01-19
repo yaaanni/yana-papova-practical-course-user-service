@@ -36,6 +36,7 @@ jobs:
         with:
           projectBaseDir: .
           args: >
+            -Dsonar.java.binaries=build/classes
             -Dsonar.organization=yaaanni
             -Dsonar.projectKey=yaaanni_yana-papova-practical-course-user-service
 
