@@ -67,13 +67,13 @@ public class CardService {
                 .toList();
     }
 
-    @CacheEvict(value = "users", key = "#cardRequest.userId")
     @Transactional
     public CardResponse update(CardUpdateRequest cardRequest, Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
         cardMapper.updateCardFromRequest(cardRequest, card);
         cardRepository.save(card);
+        cacheManager.getCache("users").evict(card.getUser().getId());
         return cardMapper.toResponse(card);
     }
 

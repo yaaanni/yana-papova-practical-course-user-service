@@ -3,6 +3,7 @@ package com.example.UserService.service.user;
 import com.example.UserService.dto.user.UserResponse;
 import com.example.UserService.entities.User;
 import com.example.UserService.repository.UserRepository;
+import com.example.UserService.service.utils.JwtServiceTest;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,6 +41,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.Optional;
 
 @SpringBootTest
+@ActiveProfiles("test")
 @Testcontainers
 @Transactional
 @AutoConfigureMockMvc
@@ -58,6 +61,9 @@ class UserServiceIntegrationTest {
 
     @Autowired
     private CacheManager cacheManager;
+
+    @Autowired
+    private JwtServiceTest jwtServiceTest;
 
     @Container
     static GenericContainer<?> redisContainer = new GenericContainer<>("redis:7.0")
@@ -98,10 +104,13 @@ class UserServiceIntegrationTest {
 
         MvcResult result = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(json))
+                                .content(json)
+                )
                 .andExpect(status().isCreated())
                 .andReturn();
+
 
         UserResponse response = objectMapper.readValue(
                 result.getResponse().getContentAsString(),
@@ -127,12 +136,14 @@ class UserServiceIntegrationTest {
 
         mockMvc.perform(
                 post("/users")
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
         ).andExpect(status().isCreated());
 
         mockMvc.perform(
                 post("/users")
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
         ).andExpect(status().isBadRequest());
@@ -151,6 +162,7 @@ class UserServiceIntegrationTest {
 
         MvcResult result = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -174,12 +186,14 @@ class UserServiceIntegrationTest {
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isCreated());
 
         MvcResult resultWithCard = mockMvc.perform(
                         get("/users/" + id)
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -193,7 +207,8 @@ class UserServiceIntegrationTest {
         assertNotNull(cards);
         assertEquals(1, cards.size());
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         Cache cache = cacheManager.getCache("users");
@@ -215,6 +230,7 @@ class UserServiceIntegrationTest {
 
         MvcResult createResult = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -226,7 +242,8 @@ class UserServiceIntegrationTest {
 
         Long id = created.getId();
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         Cache cache = cacheManager.getCache("users");
@@ -244,13 +261,15 @@ class UserServiceIntegrationTest {
                 """;
 
         mockMvc.perform(put("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateJson))
                 .andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
@@ -274,6 +293,7 @@ class UserServiceIntegrationTest {
                 """;
 
         mockMvc.perform(put("/users/" + id)
+                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateJson)
         ).andExpect(status().isNotFound());
@@ -291,6 +311,7 @@ class UserServiceIntegrationTest {
                 """;
         mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(firstJson))
                 .andExpect(status().isCreated()
@@ -305,6 +326,7 @@ class UserServiceIntegrationTest {
                 """;
         mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(secondJson))
                 .andExpect(status().isCreated()
@@ -312,6 +334,7 @@ class UserServiceIntegrationTest {
 
         MvcResult result = mockMvc.perform(
                         get("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .param("page", "0")
                                 .param("size", "10")
                                 .param("name", "First")
@@ -327,6 +350,7 @@ class UserServiceIntegrationTest {
 
         MvcResult result2 = mockMvc.perform(
                         get("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .param("page", "0")
                                 .param("size", "10")
                                 .param("surname", "Human")
@@ -342,6 +366,7 @@ class UserServiceIntegrationTest {
 
         MvcResult result3 = mockMvc.perform(
                         get("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .param("page", "0")
                                 .param("size", "10")
                                 .param("name", "First")
@@ -358,6 +383,7 @@ class UserServiceIntegrationTest {
 
         MvcResult result4 = mockMvc.perform(
                         get("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .param("page", "0")
                                 .param("size", "10")
                 )
@@ -383,6 +409,7 @@ class UserServiceIntegrationTest {
 
         MvcResult createResult = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -394,7 +421,8 @@ class UserServiceIntegrationTest {
         );
         Long id = created.getId();
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         Cache cache = cacheManager.getCache("users");
@@ -404,12 +432,14 @@ class UserServiceIntegrationTest {
 
         mockMvc.perform(
                 patch("/users/" + id + "/activate")
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
@@ -432,6 +462,7 @@ class UserServiceIntegrationTest {
 
         MvcResult createResult = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -443,7 +474,8 @@ class UserServiceIntegrationTest {
         );
         Long id = created.getId();
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         Cache cache = cacheManager.getCache("users");
@@ -454,11 +486,13 @@ class UserServiceIntegrationTest {
         mockMvc.perform(
                 patch("/users/" + id + "/deactivate")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
         ).andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
@@ -481,6 +515,7 @@ class UserServiceIntegrationTest {
 
         MvcResult createResult = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -492,7 +527,8 @@ class UserServiceIntegrationTest {
         );
         Long id = created.getId();
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         Cache cache = cacheManager.getCache("users");
@@ -502,6 +538,7 @@ class UserServiceIntegrationTest {
 
         mockMvc.perform(
                 delete("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isNoContent());
 

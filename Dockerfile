@@ -1,4 +1,4 @@
-FROM gradle:8.14-jdk21 AS builder
+FROM gradle:jdk25-ubi AS builder
 WORKDIR /app
 COPY build.gradle settings.gradle ./
 COPY src ./src

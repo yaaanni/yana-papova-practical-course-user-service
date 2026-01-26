@@ -14,14 +14,13 @@ services:
 
   redis:
     image: redis:7
-    command: [ "redis-server", "--requirepass", "redis" ]
-    environment:
-      REDIS_PASSWORD: redis
+    command: [ "redis-server", "--requirepass", "redis", "--bind", "0.0.0.0" ]
     ports:
       - "6379:6379"
 
   user-service:
-    image: yaaanni/user-service:latest
+    build: .
+    image: user-service
     environment:
       SPRING_PROFILES_ACTIVE: docker
       DB_URL: jdbc:postgresql://postgres:5432/users
@@ -30,6 +29,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: redis
+      JWT_SECRET: xlnHvzm1P50Fh2VUVJwfabMClaOUzPKHvfOeYZQoRSE=
     ports:
       - "8080:8080"
     depends_on:

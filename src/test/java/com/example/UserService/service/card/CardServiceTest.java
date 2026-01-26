@@ -235,9 +235,16 @@ public class CardServiceTest {
         card.setId(id);
         card.setHolder("Old Holder");
 
+        User user = new User();
+        user.setId(10L);
+        card.setUser(user);
+
         CardResponse response = new CardResponse();
         response.setId(id);
         response.setHolder("New Holder");
+
+        Cache cache = mock(Cache.class);
+        when(cacheManager.getCache("users")).thenReturn(cache);
 
         when(cardRepository.findById(id)).thenReturn(Optional.of(card));
         doNothing().when(cardMapper).updateCardFromRequest(request, card);
@@ -251,6 +258,8 @@ public class CardServiceTest {
         verify(cardRepository).findById(id);
         verify(cardMapper).updateCardFromRequest(request, card);
         verify(cardRepository).save(card);
+        verify(cacheManager).getCache("users");
+        verify(cache).evict(user.getId());
         verify(cardMapper).toResponse(card);
     }
 
