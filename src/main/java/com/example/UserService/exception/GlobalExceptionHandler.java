@@ -16,6 +16,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
+    @ExceptionHandler(UserWithEmailNotFoundException.class)
+    public ResponseEntity<String> userWithEmailNotFound(UserWithEmailNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
     @ExceptionHandler(CardNotFoundException.class)
     public ResponseEntity<String> cardNotFound(CardNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());

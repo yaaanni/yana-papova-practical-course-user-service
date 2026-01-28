@@ -11,12 +11,16 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
 
   redis:
     image: redis:7
     command: [ "redis-server", "--requirepass", "redis", "--bind", "0.0.0.0" ]
     ports:
       - "6379:6379"
+    networks:
+      - backend
 
   user-service:
     build: .
@@ -35,6 +39,12 @@ services:
     depends_on:
       - postgres
       - redis
+    networks:
+      - backend
 
 volumes:
   postgres_data:
+
+networks:
+  backend:
+    external: true

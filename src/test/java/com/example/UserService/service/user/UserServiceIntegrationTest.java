@@ -218,6 +218,50 @@ class UserServiceIntegrationTest {
     }
 
     @Test
+    void getUserByEmail_shouldReturnUser() throws Exception {
+        String json = """
+        {
+            "name": "New",
+            "surname": "Person",
+            "birthDay": "2006-03-04",
+            "email": "new@example.com"
+        }
+        """;
+
+        MvcResult result = mockMvc.perform(
+                        post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        UserResponse response = objectMapper.readValue(
+                result.getResponse().getContentAsString(),
+                UserResponse.class
+        );
+
+        String email = response.getEmail();
+
+        MvcResult resultUser = mockMvc.perform(
+                        get("/users/email/" + email)
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String jsonResponse = resultUser.getResponse().getContentAsString();
+        JsonNode root = objectMapper.readTree(jsonResponse);
+
+        assertEquals(email, root.get("email").asText());
+
+        mockMvc.perform(
+                        get("/users/email/" + email)
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void update_shouldUpdateUser_whenUserIsExists() throws Exception {
         String json = """
                 {

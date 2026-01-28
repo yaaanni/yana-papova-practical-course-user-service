@@ -5,6 +5,7 @@ import com.example.UserService.dto.user.UserRequest;
 import com.example.UserService.dto.user.UserResponse;
 import com.example.UserService.entities.User;
 import com.example.UserService.exception.UserNotFoundException;
+import com.example.UserService.exception.UserWithEmailNotFoundException;
 import com.example.UserService.mapper.UserMapper;
 import com.example.UserService.repository.UserRepository;
 import com.example.UserService.specification.UserSpecifications;
@@ -33,6 +34,12 @@ public class UserService {
     public UserByIdResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
+        return userMapper.toByIdResponse(user);
+    }
+
+    public UserByIdResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserWithEmailNotFoundException(email));
         return userMapper.toByIdResponse(user);
     }
 

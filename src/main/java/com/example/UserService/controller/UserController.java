@@ -3,6 +3,7 @@ package com.example.UserService.controller;
 import com.example.UserService.dto.user.UserByIdResponse;
 import com.example.UserService.dto.user.UserRequest;
 import com.example.UserService.dto.user.UserResponse;
+import com.example.UserService.security.service.UserSecurityService;
 import com.example.UserService.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
+
     private final UserService userService;
+    private final UserSecurityService userSecurityService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
@@ -30,6 +33,14 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserByIdResponse> getUserById(@PathVariable Long id) {
         UserByIdResponse response = userService.getUserById(id);
+        System.out.println(response);
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN') or @userSecurityService.isOwner(#email, principal.userId())")
+    @GetMapping("/email/{email}")
+    public ResponseEntity<UserByIdResponse> getUserByEmail(@PathVariable String  email) {
+        UserByIdResponse response = userService.getUserByEmail(email);
         return ResponseEntity.ok(response);
     }
 
