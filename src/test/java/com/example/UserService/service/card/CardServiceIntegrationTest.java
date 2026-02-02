@@ -102,7 +102,7 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }
                 """;
@@ -195,7 +195,7 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
@@ -318,7 +318,7 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
@@ -393,7 +393,7 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "First",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
@@ -415,7 +415,7 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "Second",
                         "surname": "Human",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new2@example.com"
                     }        
                 """;
@@ -540,7 +540,7 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
@@ -617,7 +617,7 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
@@ -738,7 +738,7 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
@@ -854,7 +854,7 @@ public class CardServiceIntegrationTest {
                 {
                     "name": "New",
                     "surname": "Person",
-                    "birthDay": "2006-03-04",
+                    "birthDate": "2006-03-04",
                     "email": "new@example.com"
                 }
                 """;

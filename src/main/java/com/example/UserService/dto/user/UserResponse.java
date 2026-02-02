@@ -16,7 +16,7 @@ public class UserResponse {
     private Long id;
     private String name;
     private String surname;
-    private LocalDate birthDay;
+    private LocalDate birthDate;
     private String email;
     private Boolean active;
     private LocalDateTime createdAt;

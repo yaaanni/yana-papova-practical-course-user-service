@@ -26,7 +26,7 @@ public class User {
     @Column(nullable = false)
     private String surname;
     @Column(name = "birth_date", nullable = false)
-    private LocalDate birthDay;
+    private LocalDate birthDate;
     @Column(nullable = false, unique = true)
     private String email;
     @Column(nullable = false)
@@ -39,5 +39,5 @@ public class User {
     private LocalDateTime updatedAt;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<Card> cards = new ArrayList<>();;
+    private List<Card> cards = new ArrayList<>();
 }

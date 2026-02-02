@@ -20,7 +20,7 @@ public class UserRequest {
     private String surname;
     @NotNull(message = "Birth Date is required")
     @Past(message = "Birthday must be in the past")
-    private LocalDate birthDay;
+    private LocalDate birthDate;
     @NotBlank(message = "Email is required")
     @Email(message = "Email must be valid")
     private String email;

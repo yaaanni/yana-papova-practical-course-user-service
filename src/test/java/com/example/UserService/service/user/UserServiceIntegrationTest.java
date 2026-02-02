@@ -97,7 +97,7 @@ class UserServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
@@ -129,7 +129,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "New",
                     "surname": "Person",
-                    "birthDay": "2006-03-04",
+                    "birthDate": "2006-03-04",
                     "email": "new@example.com"
                 }
                 """;
@@ -155,7 +155,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "New",
                     "surname": "Person",
-                    "birthDay": "2006-03-04",
+                    "birthDate": "2006-03-04",
                     "email": "new@example.com"
                 }
                 """;
@@ -223,7 +223,7 @@ class UserServiceIntegrationTest {
         {
             "name": "New",
             "surname": "Person",
-            "birthDay": "2006-03-04",
+            "birthDate": "2006-03-04",
             "email": "new@example.com"
         }
         """;
@@ -267,7 +267,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "Old",
                     "surname": "Person",
-                    "birthDay": "2006-03-04",
+                    "birthDate": "2006-03-04",
                     "email": "new@example.com"
                 }
                 """;
@@ -299,7 +299,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "New",
                     "surname": "Person",
-                    "birthDay": "2006-03-04",
+                    "birthDate": "2006-03-04",
                     "email": "new@example.com"
                 }
                 """;
@@ -331,7 +331,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "New",
                     "surname": "Person",
-                    "birthDay": "2006-03-04",
+                    "birthDate": "2006-03-04",
                     "email": "new@example.com"
                 }
                 """;
@@ -349,7 +349,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "First",
                     "surname": "Person",
-                    "birthDay": "2006-03-04",
+                    "birthDate": "2006-03-04",
                     "email": "first@example.com"
                 }
                 """;
@@ -364,7 +364,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "Second",
                     "surname": "Human",
-                    "birthDay": "2006-03-04",
+                    "birthDate": "2006-03-04",
                     "email": "second@example.com"
                 }
                 """;
@@ -446,7 +446,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "Test",
                     "surname": "User",
-                    "birthDay": "2000-01-01",
+                    "birthDate": "2000-01-01",
                     "email": "test@example.com"
                 }
                 """;
@@ -499,7 +499,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "Test",
                     "surname": "User",
-                    "birthDay": "2000-01-01",
+                    "birthDate": "2000-01-01",
                     "email": "test@example.com"
                 }
                 """;
@@ -552,7 +552,7 @@ class UserServiceIntegrationTest {
                 {
                     "name": "Test",
                     "surname": "User",
-                    "birthDay": "2000-01-01",
+                    "birthDate": "2000-01-01",
                     "email": "test@example.com"
                 }
                 """;
