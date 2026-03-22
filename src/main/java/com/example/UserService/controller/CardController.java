@@ -3,6 +3,7 @@ package com.example.UserService.controller;
 import com.example.UserService.dto.card.CardRequest;
 import com.example.UserService.dto.card.CardResponse;
 import com.example.UserService.dto.card.CardUpdateRequest;
+import com.example.UserService.security.model.AuthUser;
 import com.example.UserService.service.CardService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,17 +22,18 @@ import java.util.List;
 public class CardController {
     private final CardService cardService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<CardResponse> create(@RequestBody @Valid CardRequest request) {
-        CardResponse response = cardService.create(request);
+    public ResponseEntity<CardResponse> create(@RequestBody @Valid CardRequest request, @AuthenticationPrincipal AuthUser authUser) {
+        CardResponse response = cardService.create(request, authUser);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PreAuthorize("hasRole('ADMIN') or @cardSecurityService.isOwner(#id, principal.getUserId())")
     @GetMapping("/{id}")
     public ResponseEntity<CardResponse> getCardById(@PathVariable Long id) {
+        System.out.println("hello from user controller 1");
         CardResponse response = cardService.getCardById(id);
+        System.out.println("hello from user controller 2");
         return ResponseEntity.ok(response);
     }
 

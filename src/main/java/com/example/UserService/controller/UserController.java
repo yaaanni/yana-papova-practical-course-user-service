@@ -21,7 +21,6 @@ public class UserController {
     private final UserService userService;
     private final UserSecurityService userSecurityService;
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest request) {
         UserResponse response = userService.create(request);
@@ -31,8 +30,10 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and principal.userId != null and #id == principal.userId)")
     @GetMapping("/{id}")
     public ResponseEntity<UserByIdResponse> getUserById(@PathVariable Long id) {
+        System.out.println(">>> CONTROLLER CALLED");
+        System.out.println("hello from user controller 1");
         UserByIdResponse response = userService.getUserById(id);
-        System.out.println(response);
+        System.out.println("hello from user controller 1");
         return ResponseEntity.ok(response);
     }
 
