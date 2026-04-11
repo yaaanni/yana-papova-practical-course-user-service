@@ -5,6 +5,7 @@ import com.example.UserService.dto.user.UserRequest;
 import com.example.UserService.dto.user.UserResponse;
 import com.example.UserService.entities.User;
 import com.example.UserService.exception.UserNotFoundException;
+import com.example.UserService.exception.UserWithEmailAlreadyExists;
 import com.example.UserService.exception.UserWithEmailNotFoundException;
 import com.example.UserService.mapper.UserMapper;
 import com.example.UserService.repository.UserRepository;
@@ -25,6 +26,10 @@ public class UserService {
     private final UserRepository userRepository;
 
     public UserResponse create(UserRequest request) {
+        userRepository.findByEmail(request.getEmail())
+                .ifPresent(user -> {
+                    throw new UserWithEmailAlreadyExists("User with email " + request.getEmail() + " already exists");
+                });
         User user = userMapper.toEntity(request);
         User savedUser = userRepository.save(user);
         return userMapper.toResponse(savedUser);
@@ -57,6 +62,12 @@ public class UserService {
     public UserResponse update(UserRequest request, Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
+        if (!user.getEmail().equals(request.getEmail())) {
+            userRepository.findByEmail(request.getEmail())
+                    .ifPresent(u -> {
+                        throw new UserWithEmailAlreadyExists("User with email " + request.getEmail() + " already exists");
+                    });
+        }
         userMapper.updateUserFromRequest(request, user);
         userRepository.save(user);
         return userMapper.toResponse(user);

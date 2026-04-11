@@ -5,6 +5,8 @@ spring:
     type: redis
   application:
     name: user-service
+  jpa:
+    show-sql: true
 
 management:
   endpoints:

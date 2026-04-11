@@ -14,7 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 @AllArgsConstructor
 public class UserController {
 
@@ -30,10 +30,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and principal.userId != null and #id == principal.userId)")
     @GetMapping("/{id}")
     public ResponseEntity<UserByIdResponse> getUserById(@PathVariable Long id) {
-        System.out.println(">>> CONTROLLER CALLED");
-        System.out.println("hello from user controller 1");
         UserByIdResponse response = userService.getUserById(id);
-        System.out.println("hello from user controller 1");
         return ResponseEntity.ok(response);
     }
 
@@ -51,7 +48,7 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('USER') and principal.userId != null and #id == principal.userId)")
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> update(@RequestBody UserRequest request, @PathVariable Long id) {
         UserResponse response = userService.update(request, id);

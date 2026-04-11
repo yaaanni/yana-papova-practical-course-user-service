@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cards")
+@RequestMapping("/api/cards")
 @AllArgsConstructor
 public class CardController {
     private final CardService cardService;
@@ -44,7 +44,7 @@ public class CardController {
         return ResponseEntity.ok(cards);
     }
 
-    @PreAuthorize("hasRole('ADMIN') or @cardSecurityService.isOwner(#id, principal.getUserId())")
+    @PreAuthorize("hasRole('ADMIN') or #id == principal.getUserId()")
     @GetMapping("/{id}/all")
     public ResponseEntity<List<CardResponse>> getCardsById(@PathVariable Long id) {
         List<CardResponse> cards = cardService.findAllByUserId(id);
@@ -72,7 +72,7 @@ public class CardController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @cardSecurityService.isOwner(#id, principal.getUserId())")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         cardService.delete(id);
