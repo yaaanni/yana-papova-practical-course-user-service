@@ -6,6 +6,7 @@ import com.example.UserService.dto.user.UserResponse;
 import com.example.UserService.entities.Card;
 import com.example.UserService.repository.CardRepository;
 import com.example.UserService.repository.UserRepository;
+import com.example.UserService.service.utils.JwtServiceTest;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,6 +47,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 @Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class CardServiceIntegrationTest {
     @Autowired
     private RedisTemplate<Object, Object> redisTemplate;
@@ -63,6 +66,9 @@ public class CardServiceIntegrationTest {
 
     @Autowired
     private CacheManager cacheManager;
+
+    @Autowired
+    private JwtServiceTest jwtServiceTest;
 
     @Container
     static GenericContainer<?> redisContainer = new GenericContainer<>("redis:7.0")
@@ -96,13 +102,14 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }
                 """;
 
         MvcResult resultUser = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -120,7 +127,8 @@ public class CardServiceIntegrationTest {
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
@@ -141,6 +149,7 @@ public class CardServiceIntegrationTest {
 
         MvcResult cardResult = mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isCreated())
@@ -174,6 +183,7 @@ public class CardServiceIntegrationTest {
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isNotFound());
@@ -185,13 +195,14 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
 
         MvcResult resultUser = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -260,36 +271,42 @@ public class CardServiceIntegrationTest {
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(firstCardJson))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(secondCardJson))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(thirdCardJson))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(fourthCardJson))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(fifthCardJson))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(sixthCardJson))
                 .andExpect(status().isBadRequest());
@@ -301,13 +318,14 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
 
         MvcResult resultUser = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -331,6 +349,7 @@ public class CardServiceIntegrationTest {
 
         MvcResult cardResult = mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isCreated())
@@ -344,7 +363,8 @@ public class CardServiceIntegrationTest {
         Long cardId = cardResponse.getId();
 
         MvcResult cardResultById = mockMvc.perform(
-                        get("/cards/" + cardId))
+                        get("/cards/" + cardId)
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -362,7 +382,8 @@ public class CardServiceIntegrationTest {
         Long id = 1L;
 
         mockMvc.perform(
-                        get("/cards/" + id))
+                        get("/cards/" + id)
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
@@ -372,13 +393,14 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "First",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
 
         MvcResult firstResultUser = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(firstJson))
                 .andExpect(status().isCreated())
@@ -393,7 +415,7 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "Second",
                         "surname": "Human",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new2@example.com"
                     }        
                 """;
@@ -401,6 +423,7 @@ public class CardServiceIntegrationTest {
 
         MvcResult secondResultUser = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(secondJson))
                 .andExpect(status().isCreated())
@@ -435,18 +458,21 @@ public class CardServiceIntegrationTest {
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(secondCardJson))
                 .andExpect(status().isCreated());
 
         MvcResult result = mockMvc.perform(
                         get("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .param("page", "0")
                                 .param("size", "10")
                                 .param("name", "First")
@@ -462,6 +488,7 @@ public class CardServiceIntegrationTest {
 
         MvcResult result2 = mockMvc.perform(
                         get("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .param("page", "0")
                                 .param("size", "10")
                                 .param("surname", "Human")
@@ -477,6 +504,7 @@ public class CardServiceIntegrationTest {
 
         MvcResult result3 = mockMvc.perform(
                         get("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .param("page", "0")
                                 .param("size", "10")
                                 .param("name", "First")
@@ -493,6 +521,7 @@ public class CardServiceIntegrationTest {
 
         MvcResult result4 = mockMvc.perform(
                         get("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .param("page", "0")
                                 .param("size", "10")
                 )
@@ -511,13 +540,14 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
 
         MvcResult resultUser = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -550,18 +580,21 @@ public class CardServiceIntegrationTest {
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(firstCardJson))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(secondCardJson))
                 .andExpect(status().isCreated());
 
         MvcResult result = mockMvc.perform(
-                        get("/cards/" + id + "/all"))
+                        get("/cards/" + id + "/all")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -584,13 +617,14 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
 
         MvcResult resultUser = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -608,7 +642,8 @@ public class CardServiceIntegrationTest {
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
@@ -629,6 +664,7 @@ public class CardServiceIntegrationTest {
 
         MvcResult cardResult = mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isCreated())
@@ -649,7 +685,8 @@ public class CardServiceIntegrationTest {
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
@@ -661,6 +698,7 @@ public class CardServiceIntegrationTest {
 
         mockMvc.perform(
                         patch("/cards/" + cardId + "/activate")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isOk());
@@ -670,7 +708,8 @@ public class CardServiceIntegrationTest {
                 CardResponse.class
         );
 
-        MvcResult afterActivateResult = mockMvc.perform(get("/cards/" + cardId))
+        MvcResult afterActivateResult = mockMvc.perform(get("/cards/" + cardId)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -688,7 +727,8 @@ public class CardServiceIntegrationTest {
         Long id = 1L;
 
         mockMvc.perform(
-                        patch("/cards/" + id + "/deactivate"))
+                        patch("/cards/" + id + "/deactivate")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
@@ -698,13 +738,14 @@ public class CardServiceIntegrationTest {
                     {
                         "name": "New",
                         "surname": "Person",
-                        "birthDay": "2006-03-04",
+                        "birthDate": "2006-03-04",
                         "email": "new@example.com"
                     }        
                 """;
 
         MvcResult resultUser = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -722,7 +763,8 @@ public class CardServiceIntegrationTest {
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
@@ -743,6 +785,7 @@ public class CardServiceIntegrationTest {
 
         MvcResult cardResult = mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isCreated())
@@ -763,7 +806,8 @@ public class CardServiceIntegrationTest {
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) == null);
 
-        mockMvc.perform(get("/users/" + id))
+        mockMvc.perform(get("/users/" + id)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk());
 
         await().atMost(1, SECONDS).until(() -> cache.get(id) != null);
@@ -775,11 +819,13 @@ public class CardServiceIntegrationTest {
 
         mockMvc.perform(
                         patch("/cards/" + cardId + "/deactivate")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isOk());
 
-        MvcResult afterDectivateResult = mockMvc.perform(get("/cards/" + cardId))
+        MvcResult afterDectivateResult = mockMvc.perform(get("/cards/" + cardId)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -797,7 +843,8 @@ public class CardServiceIntegrationTest {
         Long id = 1L;
 
         mockMvc.perform(
-                        patch("/cards/" + id + "/deactivate"))
+                        patch("/cards/" + id + "/deactivate")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isNotFound());
     }
 
@@ -807,13 +854,14 @@ public class CardServiceIntegrationTest {
                 {
                     "name": "New",
                     "surname": "Person",
-                    "birthDay": "2006-03-04",
+                    "birthDate": "2006-03-04",
                     "email": "new@example.com"
                 }
                 """;
 
         MvcResult resultUser = mockMvc.perform(
                         post("/users")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(json))
                 .andExpect(status().isCreated())
@@ -837,6 +885,7 @@ public class CardServiceIntegrationTest {
 
         MvcResult cardResult = mockMvc.perform(
                         post("/cards")
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN"))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(cardJson))
                 .andExpect(status().isCreated())
@@ -851,10 +900,12 @@ public class CardServiceIntegrationTest {
 
         assertTrue(cardRepository.findById(cardId).isPresent());
 
-        mockMvc.perform(delete("/cards/{id}", cardId))
+        mockMvc.perform(delete("/cards/{id}", cardId)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/cards/{id}", cardId))
+        mockMvc.perform(get("/cards/{id}", cardId)
+                        .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isNotFound());
 
         assertFalse(cardRepository.findById(cardId).isPresent());
@@ -870,7 +921,8 @@ public class CardServiceIntegrationTest {
         Long id = 1L;
 
         mockMvc.perform(
-                        delete("/cards/" + id))
+                        delete("/cards/" + id)
+                                .header("Authorization", "Bearer " + jwtServiceTest.generateToken("User", 1L, "ADMIN")))
                 .andExpect(status().isNotFound());
     }
 }

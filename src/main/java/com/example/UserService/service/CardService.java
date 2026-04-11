@@ -11,6 +11,7 @@ import com.example.UserService.exception.UserNotFoundException;
 import com.example.UserService.mapper.CardMapper;
 import com.example.UserService.repository.CardRepository;
 import com.example.UserService.repository.UserRepository;
+import com.example.UserService.security.model.AuthUser;
 import com.example.UserService.specification.CardSpecifications;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,7 +35,16 @@ public class CardService {
     private final CacheManager cacheManager;
 
     @CacheEvict(value = "users", key = "#request.userId")
-    public CardResponse create(CardRequest request) {
+    public CardResponse create(CardRequest request, AuthUser authUser) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin) {
+            request.setUserId(authUser.getUserId());
+        }
+
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
         if (user.getCards().size() >= 5) {
@@ -67,13 +79,13 @@ public class CardService {
                 .toList();
     }
 
-    @CacheEvict(value = "users", key = "#cardRequest.userId")
     @Transactional
     public CardResponse update(CardUpdateRequest cardRequest, Long id) {
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
         cardMapper.updateCardFromRequest(cardRequest, card);
         cardRepository.save(card);
+        cacheManager.getCache("users").evict(card.getUser().getId());
         return cardMapper.toResponse(card);
     }
 

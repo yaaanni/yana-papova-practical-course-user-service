@@ -1,10 +1,39 @@
 spring:
-
   liquibase:
     change-log: classpath:db/master.yml
-
+  cache:
+    type: redis
+  application:
+    name: user-service
   jpa:
     show-sql: true
 
-  cache:
-    type: redis
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  tracing:
+    sampling:
+      probability: 1.0
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: "http://alloy:4318/v1/traces"
+  otlp:
+    metrics:
+      export:
+        enabled: false
+        url: "http://alloy:4318/v1/metrics"

@@ -1,7 +1,6 @@
 package com.example.UserService.repository;
 
 import com.example.UserService.entities.Card;
-import com.example.UserService.entities.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

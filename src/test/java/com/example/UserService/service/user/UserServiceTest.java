@@ -5,6 +5,7 @@ import com.example.UserService.dto.user.UserRequest;
 import com.example.UserService.dto.user.UserResponse;
 import com.example.UserService.entities.User;
 import com.example.UserService.exception.UserNotFoundException;
+import com.example.UserService.exception.UserWithEmailNotFoundException;
 import com.example.UserService.mapper.UserMapper;
 import com.example.UserService.repository.UserRepository;
 import com.example.UserService.service.UserService;
@@ -90,6 +91,29 @@ public class UserServiceTest {
     }
 
     @Test
+    void getUserByEmail_shouldReturnUser_whenUserExists() {
+        String email = "test@mail.com";
+
+        User user = new User();
+        user.setName("Name");
+        user.setSurname("Surname");
+
+        UserByIdResponse response = new UserByIdResponse();
+        response.setName("Name");
+        response.setSurname("Surname");
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+        when(userMapper.toByIdResponse(user)).thenReturn(response);
+
+        UserByIdResponse result = userService.getUserByEmail(email);
+
+        assertThat(result).isEqualTo(response);
+
+        verify(userRepository).findByEmail(email);
+        verify(userMapper).toByIdResponse(user);
+    }
+
+    @Test
     void getUserById_shouldThrowUserNotFoundException_whenUserDoesNotExist() {
         Long id = 1L;
 
@@ -99,6 +123,19 @@ public class UserServiceTest {
                 () -> userService.getUserById(id));
 
         verify(userRepository).findById(id);
+        verifyNoInteractions(userMapper);
+    }
+
+    @Test
+    void getUserByEmail_shouldThrowUserWithEmailNotFoundException_whenUserDoesNotExist() {
+        String email = "test@mail.com";
+
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+        assertThrows(UserWithEmailNotFoundException.class,
+                () -> userService.getUserByEmail(email));
+
+        verify(userRepository).findByEmail(email);
         verifyNoInteractions(userMapper);
     }
 
